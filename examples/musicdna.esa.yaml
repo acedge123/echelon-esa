@@ -1,0 +1,106 @@
+spec_version: "0.2"
+
+service:
+  id: com.musicdna.service
+  name: MusicDNA
+  description: Structured analysis of latent listening preferences.
+  version: "1.0.0"
+  owner: MusicDNA
+  base_url: https://example.musicdna.com/api/v1
+  status: experimental
+  terms_url: https://example.musicdna.com/terms
+  privacy_url: https://example.musicdna.com/privacy
+
+capabilities:
+  - id: musicdna.profile.generate
+    version: "1.0.0"
+    name: Generate MusicDNA Profile
+    description: Generate a structured taste profile from validated listening evidence.
+    status: experimental
+
+    interfaces:
+      http:
+        method: POST
+        path: /profiles
+        content_type: application/json
+      mcp:
+        tool_name: musicdna_generate_profile
+        server_url: https://example.musicdna.com/mcp
+        input_schema_from: input_schema
+
+    input_schema: https://example.musicdna.com/schemas/profile-request.json
+    output_schema: https://example.musicdna.com/schemas/profile-response.json
+
+    auth:
+      methods:
+        - type: session
+          issuers:
+            - https://example.musicdna.com
+        - type: api_key
+          issuers:
+            - https://keys.musicdna.com
+          scopes:
+            - profile:generate
+        - type: x402
+          networks:
+            - base
+
+    pricing:
+      model: per_request
+      amount: "0.05"
+      currency: USDC
+      settlement:
+        protocol: x402
+        network: base
+        pay_to: "0xREPLACE_WITH_BASE_ADDRESS"
+
+    rate_limits:
+      per_key:
+        requests: 30
+        period: minute
+      per_tenant:
+        requests: 1000
+        period: day
+      max_concurrency: 5
+
+    sla:
+      availability_target: "99.5%"
+      latency_ms:
+        p50: 750
+        p95: 2500
+      timeout_ms: 15000
+
+    data:
+      classification: user-provided
+      pii:
+        request: true
+        response: true
+      retention: service-policy
+      freshness: realtime
+
+    idempotency:
+      supported: true
+      header: Idempotency-Key
+      retention_hours: 24
+
+    async:
+      supported: false
+
+    errors:
+      - code: INVALID_EVIDENCE
+        http_status: 400
+        retryable: false
+      - code: RATE_LIMITED
+        http_status: 429
+        retryable: true
+
+discovery:
+  openapi_url: https://example.musicdna.com/openapi.json
+  docs_url: https://example.musicdna.com/docs
+  registries:
+    - name: Echelon
+      optional: true
+
+governance:
+  contact: replace-with-product-owner
+  legal_notice: Manifest metadata is descriptive and subject to linked binding terms.
