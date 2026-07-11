@@ -1,0 +1,96 @@
+spec_version: "0.1"
+
+service:
+  id: momwalk-brand-portal
+  name: Mom Walk Brand Portal Services
+  description: Search and insight capabilities derived from Mom Walk community, event, and local-business data.
+  version: "1.0.0"
+  owner: The Mom Walk Collective
+  base_url: https://example.momwalk.com/api/v1
+  status: experimental
+
+capabilities:
+  - id: search-local-businesses
+    name: Search Local Businesses
+    description: Search approved local-business records by geography, category, and proximity to a Mom Walk community.
+    method: GET
+    path: /momwalk/businesses/search
+
+    access:
+      methods:
+        - api_key
+        - subscription
+        - x402
+
+    pricing:
+      model: per_request
+      protocol: x402
+      amount: "0.02"
+      currency: USDC
+      network: base
+
+    response:
+      content_type: application/json
+      schema_ref: "#/components/schemas/BusinessSearchResponse"
+
+    limits:
+      requests_per_minute: 20
+
+    data:
+      classification: aggregated-commercial
+      freshness: weekly
+      redistribution_review_required: true
+
+  - id: community-stats
+    name: Retrieve Community Statistics
+    description: Return approved summary statistics for a selected Mom Walk community.
+    method: GET
+    path: /momwalk/communities/{community_id}/stats
+
+    access:
+      methods:
+        - api_key
+        - subscription
+        - x402
+
+    pricing:
+      model: per_request
+      protocol: x402
+      amount: "0.10"
+      currency: USDC
+      network: base
+
+    data:
+      classification: aggregated-commercial
+      freshness: daily
+
+  - id: sponsor-match
+    name: Match Sponsor to Communities
+    description: Rank communities for a sponsor brief using approved demographic, geographic, event, and category signals.
+    method: POST
+    path: /momwalk/sponsor-match
+
+    access:
+      methods:
+        - subscription
+        - contract
+
+    pricing:
+      model: contract
+
+discovery:
+  openapi_url: https://example.momwalk.com/openapi.json
+  docs_url: https://example.momwalk.com/docs
+  mcp:
+    enabled: false
+  echelon_registry:
+    enabled: true
+
+governance:
+  contact: replace-with-product-owner
+  terms_url: https://example.momwalk.com/terms
+  privacy_url: https://example.momwalk.com/privacy
+  deprecation_policy: 90-day notice
+  notes:
+    - Public discovery does not imply unrestricted data access.
+    - Source rights, scraping terms, privacy, freshness, and redistribution rights must be approved before launch.
