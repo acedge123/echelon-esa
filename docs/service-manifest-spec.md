@@ -1,191 +1,32 @@
 # ESA Service Manifest Specification
 
-Version 0.1
+Version 0.2 — Draft
 
-An ESA-compliant project should publish a machine-readable manifest, conventionally named `echelon.yaml`, at the project root or another documented location.
+The conventional manifest filename is `esa.yaml`. It is a portable declaration of a service and its capabilities; it does not require any specific registry, gateway, hosting provider, payment protocol, or control plane.
 
-The manifest describes the service. It does not move the service into Echelon and does not require Echelon to proxy requests.
+The canonical field reference now lives at [`../spec/service-manifest.md`](../spec/service-manifest.md). The initial machine-validatable schema is [`../schemas/esa.schema.json`](../schemas/esa.schema.json).
 
-## Goals
+## Required concepts
 
-The manifest should let a human, application, registry, or AI agent determine:
+An ESA manifest describes:
 
-- What the service is
-- Who owns it
-- Where it runs
-- Which capabilities it exposes
-- How those capabilities are called
-- How access is controlled
-- What each capability costs
-- Where formal schemas and documentation live
+- Stable service and capability identities
+- Supported interfaces, including HTTP and MCP mappings
+- Request, response, event, error, and async-result schemas
+- Accepted authentication methods, credential issuers, and scopes
+- Pricing models and settlement details
+- Per-key and per-tenant rate limits
+- Availability and latency targets
+- Data classification, PII handling, freshness, and retention
+- Idempotency support
+- Version compatibility, deprecation, sunset, and successor capabilities
+- Terms, privacy, ownership, and support contacts
+- Optional trust and reputation signals
 
-## Recommended structure
+## Legal status
 
-```yaml
-spec_version: "0.1"
+A manifest is descriptive metadata and is not itself an offer, quote, SLA, license, or contract. Binding terms arise only through the linked terms, MSA, order form, payment authorization, or other agreement accepted by the parties.
 
-service:
-  id: unique-service-id
-  name: Human-readable name
-  description: Short description
-  version: "1.0.0"
-  owner: Organization or product owner
-  base_url: https://example.com/api/v1
-  status: experimental
+## Compliance
 
-capabilities:
-  - id: capability-id
-    name: Human-readable capability name
-    description: What the capability returns or performs
-    method: POST
-    path: /resource
-
-    access:
-      methods:
-        - session
-        - api_key
-        - x402
-
-    pricing:
-      model: per_request
-      amount: "0.05"
-      currency: USDC
-      network: base
-
-    request:
-      content_type: application/json
-      schema_ref: "#/components/schemas/Request"
-
-    response:
-      content_type: application/json
-      schema_ref: "#/components/schemas/Response"
-
-    limits:
-      requests_per_minute: 60
-
-    data:
-      classification: public
-      freshness: daily
-
-discovery:
-  openapi_url: https://example.com/openapi.json
-  docs_url: https://example.com/docs
-  mcp:
-    enabled: false
-  echelon_registry:
-    enabled: true
-
-governance:
-  contact: product-owner@example.com
-  terms_url: https://example.com/terms
-  privacy_url: https://example.com/privacy
-  deprecation_policy: 90-day notice
-```
-
-## Required top-level fields
-
-### `spec_version`
-
-Version of this manifest specification.
-
-### `service`
-
-Service identity and base execution details.
-
-Recommended fields:
-
-- `id`
-- `name`
-- `description`
-- `version`
-- `owner`
-- `base_url`
-- `status`
-
-### `capabilities`
-
-List of exposed capabilities.
-
-Each capability should include:
-
-- Stable `id`
-- Human-readable `name`
-- `description`
-- HTTP `method`
-- Relative `path`
-- Access policy
-- Pricing policy
-- Request and response format
-
-## Access methods
-
-Common values include:
-
-- `public`
-- `session`
-- `api_key`
-- `oauth`
-- `service_token`
-- `subscription`
-- `x402`
-
-A capability may support more than one method.
-
-## Pricing models
-
-Common values include:
-
-- `free`
-- `per_request`
-- `metered`
-- `subscription`
-- `credits`
-- `contract`
-- `hybrid`
-
-For x402, define the settlement currency and network explicitly.
-
-```yaml
-pricing:
-  model: per_request
-  amount: "0.05"
-  currency: USDC
-  network: base
-  protocol: x402
-```
-
-Amounts should be strings to avoid floating-point ambiguity.
-
-## Discovery
-
-The manifest should link to richer machine-readable contracts where available.
-
-Recommended discovery mechanisms:
-
-- OpenAPI for HTTP contracts
-- MCP for tool-oriented agent access
-- Direct documentation
-- Echelon registry indexing
-
-A service can support any subset.
-
-## Governance
-
-Every service should identify:
-
-- Responsible owner
-- Terms of use
-- Privacy policy where relevant
-- Data classification
-- Version and deprecation policy
-- Rate limits
-
-## Versioning
-
-Use semantic versioning for the service contract where practical.
-
-Breaking changes should use a new major version and generally a new URL namespace, such as `/api/v2`.
-
-## Validation rule
-
-A service should not claim ESA compliance merely because it has a YAML file. The manifest must accurately describe the live service, and the service must enforce the stated access, pricing, and governance rules.
+A YAML file alone does not establish ESA compliance. The published manifest must validate against the applicable schema and accurately describe the live capability's enforced behavior.
