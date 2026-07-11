@@ -10,6 +10,7 @@ service:
   status: experimental
   terms_url: https://example.musicdna.com/terms
   privacy_url: https://example.musicdna.com/privacy
+  support_url: https://example.musicdna.com/support
 
 capabilities:
   - id: musicdna.profile.generate
@@ -24,9 +25,10 @@ capabilities:
         path: /profiles
         content_type: application/json
       mcp:
-        tool_name: musicdna_generate_profile
-        server_url: https://example.musicdna.com/mcp
-        input_schema_from: input_schema
+        derive_from: http
+        tool_name: musicdna_profile_generate
+        input_schema_ref: https://example.musicdna.com/schemas/profile-request.json
+        output_schema_ref: https://example.musicdna.com/schemas/profile-response.json
 
     input_schema: https://example.musicdna.com/schemas/profile-request.json
     output_schema: https://example.musicdna.com/schemas/profile-response.json
@@ -34,49 +36,40 @@ capabilities:
     auth:
       methods:
         - type: session
-          issuers:
-            - https://example.musicdna.com
+          issuers: [https://example.musicdna.com]
         - type: api_key
-          issuers:
-            - https://keys.musicdna.com
-          scopes:
-            - profile:generate
+          issuers: [https://keys.musicdna.com]
+          scopes: [profile:generate]
+
+    payments:
+      methods:
         - type: x402
-          networks:
-            - base
+          network: base
+          currency: USDC
+          pay_to: "0xREPLACE_WITH_BASE_ADDRESS"
 
     pricing:
       model: per_request
       amount: "0.05"
       currency: USDC
-      settlement:
-        protocol: x402
-        network: base
-        pay_to: "0xREPLACE_WITH_BASE_ADDRESS"
 
     rate_limits:
-      per_key:
-        requests: 30
-        period: minute
-      per_tenant:
-        requests: 1000
-        period: day
+      per_key: { requests: 30, period: minute }
+      per_tenant: { requests: 1000, period: day }
       max_concurrency: 5
 
     sla:
       availability_target: "99.5%"
-      latency_ms:
-        p50: 750
-        p95: 2500
+      latency_ms: { p50: 750, p95: 2500 }
       timeout_ms: 15000
 
     data:
       classification: user-provided
-      pii:
-        request: true
-        response: true
+      pii: { request: true, response: true }
       retention: service-policy
       freshness: realtime
+      permitted_uses: [user-authorized-analysis]
+      redistribution: prohibited
 
     idempotency:
       supported: true
@@ -88,11 +81,18 @@ capabilities:
 
     errors:
       - code: INVALID_EVIDENCE
-        http_status: 400
+        protocol_status: 400
         retryable: false
       - code: RATE_LIMITED
-        http_status: 429
+        protocol_status: 429
         retryable: true
+
+    events: []
+
+    deprecation:
+      deprecated_on: null
+      sunset_on: null
+      successor_capability_id: null
 
 discovery:
   openapi_url: https://example.musicdna.com/openapi.json
