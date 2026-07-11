@@ -1,34 +1,53 @@
-# Echelon Economic Service Architecture (ESA)
+# Economic Service Architecture (ESA)
 
-**A standard for building software whose capabilities can be discovered, priced, invoked, and composed by humans, applications, and autonomous AI agents.**
+**An open specification for describing software capabilities so they can be discovered, evaluated, invoked, governed, and economically consumed by humans, applications, and autonomous agents.**
 
-ESA is an architectural standard, not a single product or payment protocol. It defines how independent projects expose valuable capabilities while retaining ownership of their own business logic, data, infrastructure, and user experience.
+ESA defines how a product declares what it can do and on what terms. It does not define how the capability is implemented.
 
-## Core idea
+## Why ESA exists
 
-Applications own capabilities. Echelon provides an optional economic and operational layer around them.
+MCP standardizes how agents call tools. OpenAPI describes HTTP interfaces. x402 enables agent-native payment. ESA sits above those layers and provides a portable declaration of the capability itself: identity, interfaces, access, pricing, schemas, limits, governance, lifecycle, and trust metadata.
 
-A MusicDNA analysis, Mom Walk business search, community insight, mortgage lead score, or future service can remain inside its existing project while being exposed through a stable HTTP interface. The website remains one client; agents and other applications become additional clients.
+The primary artifact is a machine-readable `esa.yaml` manifest. Registries, validators, documentation generators, MCP bridges, gateways, and commercial platforms can all consume the same manifest.
+
+## Non-goals
+
+ESA is not:
+
+- A new transport protocol
+- A payment network
+- A hosting platform
+- A mandatory gateway
+- A replacement for MCP, OpenAPI, OAuth, or x402
+- A guarantee that published data or services are lawful, accurate, or safe
+
+## Core principles
+
+1. Capabilities are more durable than interfaces.
+2. Products retain ownership of business logic, data, and infrastructure.
+3. A capability may expose multiple interfaces, including HTTP and MCP.
+4. Existing systems should be wrapped, not rewritten.
+5. Discovery is decentralized; no registry is mandatory.
+6. Identity, economics, governance, and lifecycle are machine-readable.
+7. Capability IDs remain stable even when endpoints or interface versions change.
+8. Composition depends on explicit, reusable schemas and events.
 
 ## Repository map
 
-- [`docs/architecture/economic-service-architecture.md`](docs/architecture/economic-service-architecture.md) — canonical ESA vision and principles
-- [`docs/service-manifest-spec.md`](docs/service-manifest-spec.md) — proposed `echelon.yaml` contract
-- [`examples/musicdna-service.yaml`](examples/musicdna-service.yaml) — MusicDNA example
-- [`examples/momwalk-service.yaml`](examples/momwalk-service.yaml) — Mom Walk Brand Portal example
+- [`spec/esa-v0.2.md`](spec/esa-v0.2.md) — core open specification
+- [`spec/service-manifest.md`](spec/service-manifest.md) — `esa.yaml` field definitions
+- [`spec/versioning.md`](spec/versioning.md) — compatibility and deprecation rules
+- [`spec/mcp-mapping.md`](spec/mcp-mapping.md) — mapping ESA capabilities to MCP tools
+- [`schemas/esa.schema.json`](schemas/esa.schema.json) — initial JSON Schema
+- [`examples/musicdna.esa.yaml`](examples/musicdna.esa.yaml) — synchronous paid capability example
+- [`examples/momwalk.esa.yaml`](examples/momwalk.esa.yaml) — governed directory-search example
 
 ## Status
 
-Version 0.1 — working architectural standard for Lovable and related projects.
+**Version 0.2 — draft open specification.**
 
-## Adoption rule
+The format is intentionally implementation-neutral. Echelon is one possible registry, governance, payments, and orchestration implementation, but ESA does not require Echelon in the discovery or execution path.
 
-Each participating project should:
+## Legal boundary
 
-1. Keep product-specific business logic inside its own codebase.
-2. Expose selected valuable capabilities through versioned HTTP endpoints.
-3. Publish machine-readable documentation and a service manifest.
-4. Support one or more access models, such as authenticated sessions, API keys, OAuth, subscriptions, or x402.
-5. Remain independently callable and discoverable outside Echelon.
-
-Echelon may index, document, price, monitor, govern, and orchestrate these services, but it is not required in the execution path unless a project explicitly chooses Echelon as its gateway.
+Publishing an `esa.yaml` manifest is descriptive metadata, not an offer to contract. Binding rights and obligations arise only through the terms, license, order form, MSA, payment flow, or other agreement linked by the service owner.
