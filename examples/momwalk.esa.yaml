@@ -1,0 +1,123 @@
+spec_version: "0.2"
+
+service:
+  id: com.momwalk.brand-portal
+  name: Mom Walk Brand Portal Services
+  description: Approved search and insight capabilities derived from community, event, and local-business data.
+  version: "1.0.0"
+  owner: The Mom Walk Collective
+  base_url: https://example.momwalk.com/api/v1
+  status: experimental
+  terms_url: https://example.momwalk.com/terms
+  privacy_url: https://example.momwalk.com/privacy
+
+capabilities:
+  - id: momwalk.business.search
+    version: "1.0.0"
+    name: Search Local Businesses
+    description: Search approved local-business records by geography, category, and proximity to a Mom Walk community.
+    status: experimental
+
+    interfaces:
+      http:
+        method: POST
+        path: /businesses/search
+        content_type: application/json
+      mcp:
+        tool_name: momwalk_search_businesses
+        server_url: https://example.momwalk.com/mcp
+        input_schema_from: input_schema
+
+    input_schema: https://example.momwalk.com/schemas/business-search-request.json
+    output_schema: https://example.momwalk.com/schemas/business-search-response.json
+
+    auth:
+      methods:
+        - type: api_key
+          issuers:
+            - https://keys.momwalk.com
+          scopes:
+            - businesses:read
+        - type: oauth2
+          issuers:
+            - https://auth.momwalk.com
+          scopes:
+            - businesses.read
+        - type: x402
+          networks:
+            - base
+
+    pricing:
+      model: hybrid
+      free_tier:
+        quantity: 10
+        period: month
+      overage:
+        model: per_request
+        amount: "0.02"
+        currency: USDC
+        settlement:
+          protocol: x402
+          network: base
+          pay_to: "0xREPLACE_WITH_BASE_ADDRESS"
+
+    rate_limits:
+      per_key:
+        requests: 20
+        period: minute
+      per_tenant:
+        requests: 2000
+        period: day
+      max_concurrency: 3
+
+    sla:
+      availability_target: "99.0%"
+      latency_ms:
+        p50: 500
+        p95: 1800
+      timeout_ms: 10000
+
+    data:
+      classification: aggregated-commercial
+      pii:
+        request: false
+        response: false
+      retention: none
+      freshness: weekly
+      permitted_uses:
+        - local-business-discovery
+        - sponsor-planning
+      prohibited_uses:
+        - unrestricted-redistribution
+        - personal-profiling
+      source_rights_review_required: true
+
+    idempotency:
+      supported: true
+      header: Idempotency-Key
+      retention_hours: 24
+
+    async:
+      supported: false
+
+    errors:
+      - code: INVALID_GEOGRAPHY
+        http_status: 400
+        retryable: false
+      - code: DATA_USE_RESTRICTED
+        http_status: 403
+        retryable: false
+      - code: RATE_LIMITED
+        http_status: 429
+        retryable: true
+
+discovery:
+  openapi_url: https://example.momwalk.com/openapi.json
+  docs_url: https://example.momwalk.com/docs
+  registries:
+    - name: Echelon
+      optional: true
+
+governance:
+  contact: replace-with-product-owner
+  legal_notice: Public discovery does not imply unrestricted access, reuse, or redistribution rights.
