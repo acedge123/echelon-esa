@@ -1,0 +1,77 @@
+spec_version: "0.1"
+
+service:
+  id: musicdna
+  name: MusicDNA
+  description: Structured analysis of latent listening preferences.
+  version: "1.0.0"
+  owner: The Gig Agency
+  base_url: https://example.musicdna.com/api/v1
+  status: experimental
+
+capabilities:
+  - id: generate-profile
+    name: Generate MusicDNA Profile
+    description: Generate a structured taste profile from validated listening evidence.
+    method: POST
+    path: /musicdna/profile
+
+    access:
+      methods:
+        - session
+        - api_key
+        - x402
+
+    pricing:
+      model: per_request
+      protocol: x402
+      amount: "0.05"
+      currency: USDC
+      network: base
+
+    request:
+      content_type: application/json
+      schema_ref: "#/components/schemas/MusicDNAProfileRequest"
+
+    response:
+      content_type: application/json
+      schema_ref: "#/components/schemas/MusicDNAProfileResponse"
+
+    limits:
+      requests_per_minute: 30
+
+    data:
+      classification: user-provided
+      freshness: realtime
+
+  - id: generate-reveal
+    name: Generate MusicDNA Reveal
+    description: Produce a user-facing interpretation from a completed MusicDNA profile.
+    method: POST
+    path: /musicdna/reveal
+
+    access:
+      methods:
+        - session
+        - x402
+
+    pricing:
+      model: per_request
+      protocol: x402
+      amount: "0.02"
+      currency: USDC
+      network: base
+
+discovery:
+  openapi_url: https://example.musicdna.com/openapi.json
+  docs_url: https://example.musicdna.com/docs
+  mcp:
+    enabled: false
+  echelon_registry:
+    enabled: true
+
+governance:
+  contact: replace-with-product-owner
+  terms_url: https://example.musicdna.com/terms
+  privacy_url: https://example.musicdna.com/privacy
+  deprecation_policy: 90-day notice
