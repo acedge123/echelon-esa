@@ -10,6 +10,7 @@ service:
   status: experimental
   terms_url: https://example.momwalk.com/terms
   privacy_url: https://example.momwalk.com/privacy
+  support_url: https://example.momwalk.com/support
 
 capabilities:
   - id: momwalk.business.search
@@ -24,9 +25,10 @@ capabilities:
         path: /businesses/search
         content_type: application/json
       mcp:
-        tool_name: momwalk_search_businesses
-        server_url: https://example.momwalk.com/mcp
-        input_schema_from: input_schema
+        derive_from: http
+        tool_name: momwalk_business_search
+        input_schema_ref: https://example.momwalk.com/schemas/business-search-request.json
+        output_schema_ref: https://example.momwalk.com/schemas/business-search-response.json
 
     input_schema: https://example.momwalk.com/schemas/business-search-request.json
     output_schema: https://example.momwalk.com/schemas/business-search-response.json
@@ -34,62 +36,48 @@ capabilities:
     auth:
       methods:
         - type: api_key
-          issuers:
-            - https://keys.momwalk.com
-          scopes:
-            - businesses:read
+          issuers: [https://keys.momwalk.com]
+          scopes: [businesses:read]
         - type: oauth2
-          issuers:
-            - https://auth.momwalk.com
-          scopes:
-            - businesses.read
+          issuers: [https://auth.momwalk.com]
+          scopes: [businesses.read]
+
+    payments:
+      methods:
+        - type: subscription_entitlement
         - type: x402
-          networks:
-            - base
+          network: base
+          currency: USDC
+          pay_to: "0xREPLACE_WITH_BASE_ADDRESS"
 
     pricing:
       model: hybrid
-      free_tier:
-        quantity: 10
-        period: month
-      overage:
-        model: per_request
-        amount: "0.02"
-        currency: USDC
-        settlement:
-          protocol: x402
-          network: base
-          pay_to: "0xREPLACE_WITH_BASE_ADDRESS"
+      components:
+        - model: subscription
+          plan_id: brand-portal
+        - model: metered
+          unit: request
+          amount: "0.02"
+          currency: USDC
 
     rate_limits:
-      per_key:
-        requests: 20
-        period: minute
-      per_tenant:
-        requests: 2000
-        period: day
+      per_key: { requests: 20, period: minute }
+      per_tenant: { requests: 2000, period: day }
       max_concurrency: 3
 
     sla:
       availability_target: "99.0%"
-      latency_ms:
-        p50: 500
-        p95: 1800
+      latency_ms: { p50: 500, p95: 1800 }
       timeout_ms: 10000
 
     data:
       classification: aggregated-commercial
-      pii:
-        request: false
-        response: false
+      pii: { request: false, response: false }
       retention: none
       freshness: weekly
-      permitted_uses:
-        - local-business-discovery
-        - sponsor-planning
-      prohibited_uses:
-        - unrestricted-redistribution
-        - personal-profiling
+      permitted_uses: [local-business-discovery, sponsor-planning]
+      redistribution: restricted
+      prohibited_uses: [unrestricted-redistribution, personal-profiling]
       source_rights_review_required: true
 
     idempotency:
@@ -102,14 +90,21 @@ capabilities:
 
     errors:
       - code: INVALID_GEOGRAPHY
-        http_status: 400
+        protocol_status: 400
         retryable: false
       - code: DATA_USE_RESTRICTED
-        http_status: 403
+        protocol_status: 403
         retryable: false
       - code: RATE_LIMITED
-        http_status: 429
+        protocol_status: 429
         retryable: true
+
+    events: []
+
+    deprecation:
+      deprecated_on: null
+      sunset_on: null
+      successor_capability_id: null
 
 discovery:
   openapi_url: https://example.momwalk.com/openapi.json
