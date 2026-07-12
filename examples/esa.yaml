@@ -1,0 +1,180 @@
+spec_version: "0.2"
+
+service:
+  id: org.example.research-service
+  name: Example Research Service
+  description: Canonical ESA v0.2 reference service demonstrating a fully declared capability.
+  version: "1.0.0"
+  owner: Example Organization
+  base_url: https://api.example.org/v1
+  status: stable
+  terms_url: https://example.org/terms
+  privacy_url: https://example.org/privacy
+  support_url: https://example.org/support
+
+schemas:
+  research_request: https://schemas.example.org/research/request-v1.json
+  research_result: https://schemas.example.org/research/result-v1.json
+  job_status: https://schemas.example.org/common/job-status-v1.json
+  completed_event: https://schemas.example.org/research/completed-event-v1.json
+
+capabilities:
+  - id: example.research.generate
+    version: "1.0.0"
+    name: Generate Research Brief
+    description: Generate a structured research brief from a caller-provided topic and constraints.
+    status: stable
+
+    interfaces:
+      http:
+        method: POST
+        path: /research/briefs
+        content_type: application/json
+      mcp:
+        derive_from: http
+        tool_name: example_research_generate
+        server_url: https://api.example.org/mcp
+        input_schema_ref: https://schemas.example.org/research/request-v1.json
+        output_schema_ref: https://schemas.example.org/research/result-v1.json
+
+    input_schema: https://schemas.example.org/research/request-v1.json
+    output_schema: https://schemas.example.org/research/result-v1.json
+
+    auth:
+      methods:
+        - type: api_key
+          issuers:
+            - https://keys.example.org
+          scopes:
+            - research:generate
+        - type: oauth2
+          issuers:
+            - https://auth.example.org
+          scopes:
+            - research.write
+        - type: signed_service
+          issuers:
+            - https://identity.example.org
+          scopes:
+            - research:generate
+
+    payments:
+      methods:
+        - type: x402
+          network: base
+          currency: USDC
+          pay_to: "0x0000000000000000000000000000000000000000"
+        - type: subscription_entitlement
+          issuer: https://billing.example.org
+
+    pricing:
+      model: hybrid
+      components:
+        - model: free
+          limit:
+            quantity: 10
+            period: month
+        - model: metered
+          unit: generated_brief
+          currency: USDC
+          rates:
+            - from: 11
+              amount: "0.05"
+
+    rate_limits:
+      per_key:
+        requests: 30
+        period: minute
+      per_tenant:
+        requests: 5000
+        period: day
+      max_concurrency: 5
+
+    sla:
+      availability_target: "99.9%"
+      latency_ms:
+        p50: 1200
+        p95: 5000
+      timeout_ms: 30000
+      retry_guidance: Retry transient 429 and 5xx responses with exponential backoff.
+
+    data:
+      classification: confidential
+      pii:
+        request: true
+        response: true
+      retention: 30-days
+      freshness: realtime
+      permitted_uses:
+        - user-authorized-research
+      prohibited_uses:
+        - unrestricted-redistribution
+
+    idempotency:
+      supported: true
+      header: Idempotency-Key
+      retention_hours: 24
+
+    async:
+      supported: true
+      mode: polling
+      status_url_template: /research/jobs/{job_id}
+      result_schema: https://schemas.example.org/research/result-v1.json
+
+    webhooks:
+      supported: true
+      callback_registration: request.callback_url
+      signature:
+        scheme: hmac-sha256
+        header: X-ESA-Signature
+      events:
+        - type: example.research.completed
+          schema_ref: https://schemas.example.org/research/completed-event-v1.json
+
+    errors:
+      - code: INVALID_INPUT
+        http_status: 400
+        retryable: false
+        docs_url: https://example.org/docs/errors#invalid-input
+      - code: PAYMENT_REQUIRED
+        http_status: 402
+        retryable: true
+        docs_url: https://example.org/docs/errors#payment-required
+      - code: RATE_LIMITED
+        http_status: 429
+        retryable: true
+        docs_url: https://example.org/docs/errors#rate-limited
+      - code: TEMPORARILY_UNAVAILABLE
+        http_status: 503
+        retryable: true
+        docs_url: https://example.org/docs/errors#temporarily-unavailable
+
+    events:
+      - type: example.research.completed
+        schema_ref: https://schemas.example.org/research/completed-event-v1.json
+
+    deprecation:
+      deprecated_on: null
+      sunset_on: null
+      successor_capability_id: null
+      successor_version: null
+
+discovery:
+  manifest_url: https://api.example.org/.well-known/esa.yaml
+  openapi_url: https://api.example.org/openapi.json
+  docs_url: https://example.org/docs
+  schema_catalog_url: https://schemas.example.org/catalog.json
+  registries:
+    - name: Echelon
+      optional: true
+
+governance:
+  contact: esa-owner@example.org
+  security_contact: security@example.org
+  legal_notice: Manifest metadata is descriptive and subject to linked binding terms.
+  trust:
+    self_asserted:
+      security_reviewed: true
+    verified:
+      source: null
+      signals: []
