@@ -4,11 +4,20 @@
 
 ESA defines how a product declares what it can do and on what terms. It does not define how the capability is implemented.
 
+> **Naming note:** “ESA” has other established meanings, including European Space Agency, Employee Stock Awards, and Enterprise Service Architecture. In this repository, ESA always means **Economic Service Architecture**. Public references should spell out the full name on first use.
+
 ## Why ESA exists
 
 MCP standardizes how agents call tools. OpenAPI describes HTTP interfaces. x402 enables agent-native payment. ESA sits above those layers and provides a portable declaration of the capability itself: identity, interfaces, authentication, payments, pricing, schemas, limits, governance, lifecycle, and trust metadata.
 
 The primary artifact is a machine-readable `esa.yaml` manifest. Registries, validators, documentation generators, MCP bridges, gateways, and commercial platforms can all consume the same manifest.
+
+| Layer | Primary question answered | Relationship to ESA |
+|---|---|---|
+| **OpenAPI** | How do I call this HTTP API? | ESA may reference it as an HTTP interface contract. |
+| **MCP** | How does an AI client discover and invoke this tool? | ESA may declare or derive an MCP mapping. |
+| **x402** | How does a caller pay for this request? | ESA may declare x402 as a payment method. |
+| **Economic Service Architecture (ESA)** | What capability is offered, by whom, and under what operational and economic terms? | ESA composes the layers above without replacing them. |
 
 ## Non-goals
 
@@ -42,22 +51,24 @@ ESA is not:
 - [`spec/versioning.md`](spec/versioning.md) — compatibility and deprecation rules
 - [`spec/mcp-mapping.md`](spec/mcp-mapping.md) — explicit and derived MCP mappings
 - [`schemas/esa.schema.json`](schemas/esa.schema.json) — machine-validatable v0.2 JSON Schema
+- [`examples/esa.yaml`](examples/esa.yaml) — canonical, fully populated reference manifest
 - [`examples/musicdna.esa.yaml`](examples/musicdna.esa.yaml) — synchronous paid capability example
 - [`examples/momwalk.esa.yaml`](examples/momwalk.esa.yaml) — governed directory-search example
 - [`cli/validate.mjs`](cli/validate.mjs) — reference manifest validator
+- [`CHANGELOG.md`](CHANGELOG.md) — specification history
 
 ## Validate a manifest
 
 ```bash
 cd cli
 npm install
-node validate.mjs ../examples/musicdna.esa.yaml
+node validate.mjs ../examples/esa.yaml
 ```
 
 Expected output:
 
 ```text
-✓ Valid ESA manifest: /path/to/musicdna.esa.yaml
+✓ Valid ESA manifest: /path/to/esa.yaml
 ```
 
 The validator uses AJV, JSON Schema Draft 2020-12, and YAML parsing. It is intentionally small and serves as a reference implementation, not yet a published package.
