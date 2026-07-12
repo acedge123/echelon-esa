@@ -8,6 +8,10 @@ Economic Service Architecture (ESA) is an open, implementation-neutral specifica
 
 ESA defines metadata and compatibility rules. It does not define application internals or require traffic to pass through a particular intermediary.
 
+### Naming note
+
+The acronym **ESA** is also used by unrelated organizations and concepts, including the European Space Agency, Employee Stock Awards, and Enterprise Service Architecture. In this repository, ESA always means **Economic Service Architecture**. Public documentation SHOULD spell out the full name on first use and SHOULD include sufficient context in titles, metadata, package names, and search descriptions to avoid ambiguity.
+
 ## 2. Non-goals
 
 ESA is not:
@@ -64,6 +68,15 @@ Each capability MUST declare machine-readable input and output schemas. It SHOUL
 7. Composition SHOULD use reusable JSON Schemas with stable `$id` URIs so downstream services can reference shared types directly.
 8. Published metadata MUST accurately reflect enforced runtime behavior.
 
+### How ESA relates to adjacent standards
+
+| Layer | Primary question answered | What it standardizes | Relationship to ESA |
+|---|---|---|---|
+| **OpenAPI** | How do I call this HTTP API? | HTTP paths, methods, parameters, payloads, and responses | ESA may reference OpenAPI as one interface contract. |
+| **MCP** | How does an AI client discover and invoke this tool? | Agent-facing tools, resources, prompts, and invocation semantics | ESA may declare or derive an MCP mapping for a capability. |
+| **x402** | How does a caller pay for this request? | HTTP-native payment negotiation and settlement | ESA may declare x402 as one payment method and describe its commercial terms. |
+| **Economic Service Architecture (ESA)** | What capability is being offered, by whom, under what operational and economic terms? | Stable capability identity, interfaces, auth, payments, pricing, limits, governance, lifecycle, and trust metadata | ESA composes the other layers; it does not replace them. |
+
 ## 6. Manifest
 
 A conforming service SHOULD publish an `esa.yaml` manifest at its repository root or at a documented well-known URL.
@@ -89,7 +102,7 @@ The manifest MUST include:
 
 Every governance requirement in this specification is represented in the manifest. A publisher MAY mark a field `unspecified` only where the schema explicitly permits it.
 
-See [`service-manifest.md`](service-manifest.md).
+See [`service-manifest.md`](service-manifest.md) and the canonical [`../examples/esa.yaml`](../examples/esa.yaml).
 
 ## 7. Authentication and identity
 
