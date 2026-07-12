@@ -120,32 +120,30 @@ capabilities:
       mode: polling
       status_url_template: /research/jobs/{job_id}
       result_schema: https://schemas.example.org/research/result-v1.json
-
-    webhooks:
-      supported: true
-      callback_registration: request.callback_url
-      signature:
-        scheme: hmac-sha256
-        header: X-ESA-Signature
-      events:
-        - type: example.research.completed
-          schema_ref: https://schemas.example.org/research/completed-event-v1.json
+      webhook:
+        callback_registration: request.callback_url
+        signature:
+          scheme: hmac-sha256
+          header: X-ESA-Signature
+        events:
+          - type: example.research.completed
+            schema_ref: https://schemas.example.org/research/completed-event-v1.json
 
     errors:
       - code: INVALID_INPUT
-        http_status: 400
+        protocol_status: 400
         retryable: false
         docs_url: https://example.org/docs/errors#invalid-input
       - code: PAYMENT_REQUIRED
-        http_status: 402
+        protocol_status: 402
         retryable: true
         docs_url: https://example.org/docs/errors#payment-required
       - code: RATE_LIMITED
-        http_status: 429
+        protocol_status: 429
         retryable: true
         docs_url: https://example.org/docs/errors#rate-limited
       - code: TEMPORARILY_UNAVAILABLE
-        http_status: 503
+        protocol_status: 503
         retryable: true
         docs_url: https://example.org/docs/errors#temporarily-unavailable
 
